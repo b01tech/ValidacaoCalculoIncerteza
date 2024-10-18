@@ -2,16 +2,20 @@ import math
 
 class Calculadora:
     VeffValues = [1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 50, float('inf')]
-    KValues = [13.97, 4.53, 3.31, 2.87, 2.65, 2.52, 2.43, 2.37, 2.28, 2.13, 2.05, 2.00]
+    KValues = [12.706204, 4.302652, 3.182446, 2.776445, 2.570581, 2.446911, 2.3646911, 2.306004, 2.228138, 2.085963, 2.008591, 2.00]
 
     @staticmethod
     def calc_media(l1, l2, l3):
         return (l1 + l2 + l3) / 3
 
     @staticmethod
-    def calc_ua(l1, l2, l3):
+    def calc_s(l1, l2, l3):
         media = Calculadora.calc_media(l1, l2, l3)
         s = math.sqrt(((l1 - media) ** 2 + (l2 - media) ** 2 + (l3 - media) ** 2) / 2)
+        return s
+
+    @staticmethod
+    def calc_ua(s):        
         return s / math.sqrt(3)
 
     @staticmethod
@@ -68,18 +72,20 @@ class Calculadora:
     def execute(balanca, pesagem):
         _k = 2.0  # fator de abrangência da calibração do Peso
         media = Calculadora.calc_media(pesagem.leitura1, pesagem.leitura2, pesagem.leitura3)
-        ua = Calculadora.calc_ua(pesagem.leitura1, pesagem.leitura2, pesagem.leitura3)
+        s = Calculadora.calc_s(pesagem.leitura1, pesagem.leitura2, pesagem.leitura3)
+        ua = Calculadora.calc_ua(s)
         up = Calculadora.calc_up(pesagem.soma_incertezas, _k)
         ur = Calculadora.calc_ur(balanca.resolucao)
         ud = Calculadora.calc_ud(pesagem.soma_incertezas)
         ue = Calculadora.calc_ue(pesagem.soma_valor_real, pesagem.material)
         uc = Calculadora.calc_uc(ua, up, ur, ud, ue)
         veff = Calculadora.calc_veff(uc, ua)
-        fator_k = Calculadora.calc_fator_k(veff)
+        fator_k = Calculadora.calc_fator_k(math.floor(veff))
         ux = Calculadora.calc_ux(uc, fator_k)
 
         result = (
             f"Media de leitura: {media}\n"
+            f"Valos s: {s}\n"
             f"Incerteza calculada por meios estatísticos UA: {ua}\n"
             f"Incerteza do peso padrão UP: {up}\n"
             f"Incerteza da resolução da balança UR: {ur}\n"
